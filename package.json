@@ -19,6 +19,7 @@
   "homepage": "https://github.com/richjoyce/dash-mqtt#readme",
   "dependencies": {
     "is-tls-client-hello": "^1.0.0",
+    "simple-node-logger": "^18.12.21",
     "sni": "^1.0.0"
   }
 }
