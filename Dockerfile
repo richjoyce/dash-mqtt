@@ -1,5 +1,7 @@
 FROM node:8
 
+VOLUME /log
+
 # Create app directory
 WORKDIR /usr/src/app
 
@@ -7,8 +9,8 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 
-COPY . .
+COPY server.js .
 
 EXPOSE 443
 
-CMD [ "npm", "start" ]
+CMD [ "npm", "start", "/log/dash-mqtt.log" ]

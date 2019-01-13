@@ -3,8 +3,10 @@ const sni = require("sni");
 const net = require("net");
 const itch = require("is-tls-client-hello");
 const mqtt = require("mqtt");
-const log = require("simple-node-logger").createSimpleLogger();
+/* if log file path given set up logger to send there and (always) stdout */
+const log = require("simple-node-logger").createSimpleLogger(process.argv.length > 2 ? process.argv[2] : undefined);
 
+/* Load environment variable options */
 const port = process.env.PORT || 443;
 const addr = process.env.ADDR || "0.0.0.0";
 const mqtt_args = {
