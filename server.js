@@ -23,7 +23,8 @@ if (mqtt_topic_base.substr(-1) != '/') {
 
 /* Only required config variable is MQTT hostname */
 if (!mqtt_args.hostname) {
-  log.error("[↑] Need to specify environment variable MQTT_HOST; exiting.");
+  // Can't use 'log' as it's slightly async so no error gets printed before exit
+  console.log("[↑] Need to specify environment variable MQTT_HOST; exiting.");
   process.exit(1);
 }
 
