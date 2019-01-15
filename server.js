@@ -48,10 +48,11 @@ client.on('error', (error) => { log.error("[↑][✗] MQTT connection error: " +
 client.on('close', () => { log.error("[↑][✗] MQTT connection closed, will attempt reconnection."); });
 
 /* Listen for Dash button TLS packets */
-net.createServer(function(socket) {
+var tls_server = net.createServer(function(socket) {
+  /* Get IP address */
+  address = socket.remoteAddress;
+
   socket.on("data", function(data) {
-    /* Get IP address */
-    address = socket.remoteAddress;
     log.debug("[↓] Data from " + address);
 
     /* Check if data is a TLS client hello */
@@ -101,5 +102,35 @@ net.createServer(function(socket) {
     return;
 
   });
-}).listen(port, addr);
-log.info("[↓][i] Listening for Dash Button packets on " + addr + ":" + port);
+
+  socket.on("error", function(error) { log.error("[↓][E] Socket error (from " + address + "): " + error); });
+  socket.on("close", function(error) { log.debug("[↓][i] Socket from " + address + " closed."); });
+});
+
+tls_server.on('error', function(error) {
+  var err_msg;
+  if (error.code === 'EADDRINUSE') {
+    err_msg = "[↓][E] Address in use when attempting to listen on " + addr + ":" + port + " (" + error + ")";
+  } else if (error.code === 'EACCES') {
+    err_msg = "[↓][E] Permission denied when attempting to listen on " + addr + ":" + port + " (" + error + ")";
+  } else {
+    err_msg = "[↓][E] Error with TCP server: " + error;
+  }
+
+  /* Exit if we are no longer listening after this error (or never were) */
+  /* log the error using console if about to quit, otherwise use logging module */
+  if (!tls_server.listening) {
+    console.log(err_msg);
+    process.exit(2);
+  } else {
+    log.error(err_msg);
+  }
+});
+
+tls_server.on('listening', function() { log.info("[↓][i] Listening for Dash Button packets on " + addr + ":" + port); });
+tls_server.on('close', function() {
+  console.log("[↓][E] Socket unexpectedly closed. Exiting.");
+  process.exit(3);
+});
+
+tls_server.listen(port, addr);
